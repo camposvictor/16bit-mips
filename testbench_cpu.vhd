@@ -30,7 +30,9 @@ ARCHITECTURE Type_0 OF testbench_cpu IS
 
         SIGNAL Signal_Stage : STD_LOGIC_VECTOR (16 DOWNTO 0) := (OTHERS => '0');
         SIGNAL Signal_Clk : STD_LOGIC := '0';
-        SIGNAL Signal_Reset : STD_LOGIC := '1';
+
+        SIGNAL Signal_Reset : STD_LOGIC := '0';
+
         SIGNAL Signal_instruction : STD_LOGIC_VECTOR (15 DOWNTO 0) := (OTHERS => '0');
         SIGNAL Signal_register_data : STD_LOGIC_VECTOR (15 DOWNTO 0) := (OTHERS => '0');
         SIGNAL Signal_memory_data : STD_LOGIC_VECTOR (15 DOWNTO 0) := (OTHERS => '0');
@@ -60,117 +62,179 @@ BEGIN
                 Clk_count <= Clk_count + 1;
                 WAIT FOR Clk_period/2; --for next 0.5 ns signal is '1'.
 
-                IF (Clk_count = 50) THEN
+
+                IF (Clk_count = 200) THEN
+
                         REPORT "Stopping simulation after 9 cycles";
                         WAIT;
                 END IF;
 
         END PROCESS Clock_Process;
 
+		  
+		  Reset_Process : PROCESS 
+			Begin
+			Signal_Reset <= '0';
+			 Wait for 10 ns;
+			 Signal_Reset <= '1';
+			 Wait for 30 ns;
+			 Signal_Reset <= '0';
+			 wait;
+		 END PROCESS Reset_Process;
+
+
         Input_Process : PROCESS
         BEGIN
                 WAIT FOR 20 ns;
-                Signal_instruction <= "0100100000000010"; --loi
+
+                Signal_instruction <= "0100100000000010"; --loi --passa 10(2) para ac0
                 Signal_ctrl_enable <= '1';
-                WAIT FOR Clk_period;
-                Signal_Reset <= '0';
+                
                 WAIT FOR Clk_period * 4;
-                Signal_instruction <= "0100100100000011";--loi
+                Signal_instruction <= "0100100100000011";--loi --passa 11(3) para ac1
+					 
                 WAIT FOR clk_period * 4;
-                Signal_instruction <= "0010100000010000"; -- mfac
+                Signal_instruction <= "0010100000010000"; -- mfac --passa de rd(ac0) para rf1(registrador 1)
+					 
                 WAIT FOR Clk_period * 4;
-                Signal_instruction <= "0010100100100000"; -- mfac
+                Signal_instruction <= "0010100100100000"; -- mfac --passa de rd(ac1) para rf1(registrador 2)
+					 
                 WAIT FOR Clk_period * 4;
-                Signal_instruction <= "0000001000010010"; --add
+                Signal_instruction <= "0000001000010010"; --add --soma rf1(reg 1) e rf2(reg2) e bota em rd 
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0000011000100001"; --sub
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0000101000010010"; --sll
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0000111000010010"; --slr
-                WAIT FOR Clk_period * 4;
-                Signal_instruction <= "0001001000010010"; --sla
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0001001000010010"; --sra
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0001010000010010"; --Tadm
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0001101100010010"; --and
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0001111100010010"; --or
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0010001100010010"; --xor
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0010011100010010"; --nor
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0011001100010010"; --slt
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0011001100100001"; --slt
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0011010000000000"; --mtl
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0011100000000000"; --mfh
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0011110000000000"; --mfl
+					 
+					 
+
                 WAIT FOR Clk_period * 4;
 
                 -- operações com imediato
 
                 Signal_instruction <= "0100000010001111"; --addis
+
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0100010010001111"; --subis
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0100100010001111"; --loi
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0100110010001111"; --lui
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0101000010001111"; --lis
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0101010000001111"; --andi
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0101100011111111"; --ori
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0101110000001111"; --xori
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0110000000001111"; --nori
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "0110010000001111"; --nandi
+					 
+
                 WAIT FOR Clk_period * 4;
                 --operacoes com acesso a memória
 
                 Signal_instruction <= "1000000000010000"; --lwr
+
+					 
                 WAIT FOR Clk_period * 5;
                 Signal_instruction <= "1000010000010000"; --swr
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "1000100100000000"; --push
+					 
                 WAIT FOR Clk_period * 4;
                 Signal_instruction <= "1000110100000000"; --pop
+					 
                 WAIT FOR Clk_period * 8;
                 --operações com salto
                 Signal_instruction <= "0100100100000011"; --loi
-                WAIT FOR Clk_period * 3;
+					 
+                WAIT FOR Clk_period * 4;
                 Signal_instruction <= "1100000000000011"; --j
-                WAIT FOR Clk_period * 5;
+					 
+                WAIT FOR Clk_period * 3;
                 Signal_instruction <= "1100010000000011"; --jal
+					 
                 WAIT FOR Clk_period * 5;
                 Signal_instruction <= "1100100100000000"; --jr
+					 
                 WAIT FOR Clk_period * 5;
                 Signal_instruction <= "1100110100000000"; --jrl
+					 
                 WAIT FOR Clk_period * 5;
                 Signal_instruction <= "1101000100000011"; --jgtz
+					 
                 WAIT FOR Clk_period * 5;
                 Signal_instruction <= "0100100100001011"; --loi
-                WAIT FOR Clk_period * 5;
+					 
+                WAIT FOR Clk_period * 4;
                 Signal_instruction <= "1101010100000011"; --jltz
+					 
                 WAIT FOR Clk_period * 5;
                 Signal_instruction <= "1101100000000011"; --jnez
+					 
                 WAIT FOR Clk_period * 5;
                 Signal_instruction <= "0100100100000000"; --loi
-                WAIT FOR Clk_period * 5;
+					 
+                WAIT FOR Clk_period * 4;
                 Signal_instruction <= "1101110100000011"; --jize
+					 
                 WAIT FOR Clk_period * 5;
                 Signal_instruction <= "0100100100000001"; --loi
-                WAIT FOR Clk_period * 5;
+					 
+                WAIT FOR Clk_period * 4;
+
                 Signal_instruction <= "1101110100000011"; --jize
                 WAIT FOR Clk_period * 5;
                 WAIT;
